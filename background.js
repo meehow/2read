@@ -20,6 +20,7 @@ function renderPage(title, content) {
             @media only screen and (min-width: 1441px) { .typesettings { font-size: 2.4em; } }
             .typesettings { max-width: 33em; margin: 0 auto; }
             a { color: #aeaeae; border-bottom: 1px dotted #aeaeae; text-decoration: none; }
+            img { max-width: 100% }
         </style>
     </head>
     <body>
