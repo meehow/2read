@@ -53,7 +53,7 @@ function ipfsPUT(hash, data, filename) {
 function seed(hash) {
     for (let gateway of gateways) {
         var req = new XMLHttpRequest();
-        req.open('GET', `https://${gateway}/ipfs/${hash}/`);
+        req.open('GET', `https://${gateway}/ipfs/${hash}/`, true);
         req.send();
     }
 }
