@@ -50,10 +50,16 @@ function ipfsPUT(hash, data, filename) {
     });
 }
 
+function pinLocally(hash) {
+    var req = new XMLHttpRequest();
+        req.open('GET', `http://localhost:5001/api/v0/pin/add?arg=${hash}`);
+        req.send();
+}
+
 function seed(hash) {
     for (let gateway of gateways) {
         var req = new XMLHttpRequest();
-        req.open('GET', `https://${gateway}/ipfs/${hash}/`, true);
+        req.open('GET', `https://${gateway}/ipfs/${hash}/`);
         req.send();
     }
 }
@@ -79,10 +85,11 @@ async function handleClick() {
         hash = await ipfsPUT(hash, await response.blob(), img);
     }
     hash = await ipfsPUT(hash, cacheManifest.join('\n'), 'cache.appcache');
-    seed(hash);
     let url = `https://${gateways[0]}/ipfs/${hash}/`;
-    browser.bookmarks.create({ title: article.title, url: url });
     browser.tabs.create({ url: url });
+    browser.bookmarks.create({ title: article.title, url: url });
+    pinLocally(hash);
+    seed(hash);
 }
 
 browser.browserAction.onClicked.addListener(handleClick);
