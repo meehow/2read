@@ -9,7 +9,8 @@
     },
     "permissions": [
         "activeTab",
-        "<all_urls>"
+        "<all_urls>",
+        "bookmarks"
     ],
     "browser_action": {
         "default_icon": "icon.png",

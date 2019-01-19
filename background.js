@@ -74,7 +74,9 @@ async function handleClick() {
         hash = await ipfsPUT(hash, await response.blob(), img);
     }
     seed(hash);
-    browser.tabs.create({ url: `https://${gateways[0]}/ipfs/${hash}/` });
+    let url = `https://${gateways[0]}/ipfs/${hash}/`;
+    browser.bookmarks.create({ title: article.title, url: url });
+    browser.tabs.create({ url: url });
 }
 
 browser.browserAction.onClicked.addListener(handleClick);
