@@ -9,7 +9,7 @@ const gateways = [
 
 function renderPage(title, content) {
     return `<!DOCTYPE html>
-<html manifest="cache.appcache">
+<html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="/ipfs/QmSMwjABWVBsnS3Gha3xmjb5zKYndvFrS74iCAwykQCqcY/typesettings-1.2-min.css">
@@ -68,10 +68,6 @@ async function handleClick() {
     await browser.tabs.executeScript({ file: 'Readability.js' });
     var result = await browser.tabs.executeScript({ file: 'action.js' });
     let article = result[0];
-    let cacheManifest = [
-        'CACHE MANIFEST',
-        '/ipfs/QmSMwjABWVBsnS3Gha3xmjb5zKYndvFrS74iCAwykQCqcY/typesettings-1.2-min.css',
-    ];
     // hash of empty folder
     let hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn';
     hash = await ipfsPUT(hash, renderPage(article.title, article.content), 'index.html');
@@ -81,10 +77,8 @@ async function handleClick() {
             console.error(`${response.status} - ${response.statusText}`);
             continue;
         }
-        cacheManifest.push(img)
         hash = await ipfsPUT(hash, await response.blob(), img);
     }
-    hash = await ipfsPUT(hash, cacheManifest.join('\n'), 'cache.appcache');
     let url = `https://${gateways[0]}/ipfs/${hash}/`;
     browser.tabs.create({ url: url });
     browser.bookmarks.create({ title: article.title, url: url });
