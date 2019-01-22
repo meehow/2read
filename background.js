@@ -46,11 +46,10 @@ async function ipfsPUT(hash, body, filename) {
 }
 
 async function pinLocally(hash) {
-    let response = await fetch(`http://localhost:5001/api/v0/pin/add?arg=${hash}`);
-    if (!response.ok) {
-        return fetch(`ipfs://localhost/api/v0/pin/add?arg=${hash}`);
-    }
-    return response;
+    // TODO: handle non-standard port configuration or use window.ipfs
+    let req = new XMLHttpRequest();
+    req.open('GET', `http://localhost:5001/api/v0/pin/add?arg=${hash}`);
+    req.send();
 }
 
 function seed(hash) {
