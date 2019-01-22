@@ -45,8 +45,12 @@ async function ipfsPUT(hash, body, filename) {
     return response.headers.get('ipfs-hash');
 }
 
-function pinLocally(hash) {
-    return fetch(`http://localhost:5001/api/v0/pin/add?arg=${hash}`);
+async function pinLocally(hash) {
+    let response = await fetch(`http://localhost:5001/api/v0/pin/add?arg=${hash}`);
+    if (!response.ok) {
+        return fetch(`ipfs://localhost/api/v0/pin/add?arg=${hash}`);
+    }
+    return response;
 }
 
 function seed(hash) {
@@ -65,7 +69,7 @@ async function handleClick() {
     for (let img in article.images) {
         let response = await fetch(article.images[img]);
         if (!response.ok) {
-            console.error(`${response.status} - ${response.statusText}`);
+            console.error(`Unexpected status ${response.status} - ${response.statusText}`);
             continue;
         }
         hash = await ipfsPUT(hash, await response.blob(), img);
