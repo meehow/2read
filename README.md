@@ -1,15 +1,12 @@
-## Convert article in current tab to readable form and upload it to P2P network
-
 # [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/2read/)
 
 # Chrome extension - pending review
 
-
 ### Features
 
-- Article conversion for readability
+- Web article cleaning for readability
 - Upload to [IPFS](https://ipfs.io/)
-- Seeding the content
+- Seeding the content to multiple gateways
 - Automatic "pinning"
 - Automatic bookmarking
 
