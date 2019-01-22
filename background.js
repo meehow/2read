@@ -33,48 +33,38 @@ function renderPage(title, content) {
 </html>`;
 }
 
-function ipfsPUT(hash, data, filename) {
-    return new Promise((resolve, reject) => {
-        let req = new XMLHttpRequest();
-        req.onreadystatechange = () => {
-            if (req.readyState != XMLHttpRequest.DONE) return;
-            if (req.status < 200 || req.status >= 300) {
-                return reject(`Unexpected status ${req.statusText} - ${req.status}`);
-            }
-            let hash = req.getResponseHeader("Ipfs-Hash");
-            resolve(hash);
-        };
-        req.onerror = reject;
-        req.open('PUT', `https://ipfs.eternum.io/ipfs/${hash}/${filename}`, true);
-        req.setRequestHeader('Content-Type', 'text/html');
-        req.send(data);
+async function ipfsPUT(hash, body, filename) {
+    let response = await fetch(`https://ipfs.eternum.io/ipfs/${hash}/${filename}`, {
+        method: 'PUT',
+        body: body,
+        headers: { 'Content-Type': 'text/html' },
     });
+    if (!response.ok) {
+        throw `Unexpected status ${response.statusText} - ${response.status}`;
+    }
+    return response.headers.get('ipfs-hash');
 }
 
 function pinLocally(hash) {
-    var req = new XMLHttpRequest();
-        req.open('GET', `http://localhost:5001/api/v0/pin/add?arg=${hash}`);
-        req.send();
+    return fetch(`http://localhost:5001/api/v0/pin/add?arg=${hash}`);
 }
 
 function seed(hash) {
     for (let gateway of gateways) {
-        var req = new XMLHttpRequest();
-        req.open('GET', `https://${gateway}/ipfs/${hash}/`);
-        req.send();
+        fetch(`https://${gateway}/ipfs/${hash}/`);
     }
 }
 
 async function handleClick() {
     await browser.tabs.executeScript({ file: 'Readability.js' });
-    var result = await browser.tabs.executeScript({ file: 'action.js' });
+    let result = await browser.tabs.executeScript({ file: 'action.js' });
     let article = result[0];
     // hash of empty folder
     let hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn';
     hash = await ipfsPUT(hash, renderPage(article.title, article.content), 'index.html');
     for (let img in article.images) {
-        var response = await fetch(article.images[img], { mode: 'no-cors' });
-        if (response.status < 200 || response.status >= 400) {
+        let response = await fetch(article.images[img]);
+        if (!response.ok) {
             console.error(`${response.status} - ${response.statusText}`);
             continue;
         }
