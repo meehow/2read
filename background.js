@@ -28,7 +28,7 @@ function renderPage(title, content) {
             <h1 style="margin-bottom: 1em">${title}</h1>
             ${content}
         </article>
-        <footer><a href="https://2read.tk/">2read.tk</a></footer>
+        <footer><a href="https://2read.net/">2read.net</a></footer>
     </body>
 </html>`;
 }
