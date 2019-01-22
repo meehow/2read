@@ -8,4 +8,5 @@ for (let img of article.content.querySelectorAll('img')) {
     img.src = key;
 }
 article.content = article.content.innerHTML;
+article.url = window.location.href;
 article;

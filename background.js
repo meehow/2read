@@ -7,28 +7,28 @@ const gateways = [
     'ipfs.infura.io'
 ];
 
-function renderPage(title, content) {
+function renderPage(article) {
     return `<!DOCTYPE html>
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/ipfs/QmSMwjABWVBsnS3Gha3xmjb5zKYndvFrS74iCAwykQCqcY/typesettings-1.2-min.css">
-        <title>${title}</title>
+        <link rel="stylesheet" href="/ipfs/QmcjLy7wEQbLJ4agdit9nvtq5exc7hQszEYwXX9ZzP7ff9/typesettings-1.7-min.css">
+        <title>${article.title}</title>
         <style>
-            footer { padding: 3em 0; text-align: center; font-size: 1.4em; border-top: 1px solid #e1e1e1;}
-            a:hover { color: #222; border-bottom-color: #555; }
-            @media only screen and (min-width: 1441px) { .typesettings { font-size: 2.4em; } }
-            .typesettings { max-width: 33em; margin: 0 auto; }
-            a { color: #aeaeae; border-bottom: 1px dotted #aeaeae; text-decoration: none; }
+            footer { text-align: center; border-top: 1px solid #e1e1e1; }
             img { max-width: 100% }
         </style>
     </head>
     <body>
         <article class="typesettings golden">
-            <h1 style="margin-bottom: 1em">${title}</h1>
-            ${content}
+            <section>
+                <header><h1>${article.title}</h1></header>
+                <p>${article.excerpt}</p>
+                <p><address><a href="${article.url}">${article.byline || article.siteName || '&#9875;'}</a></address></p>
+            </section>
+            <section>${article.content}</section>
         </article>
-        <footer><a href="https://2read.net/">2read.net</a></footer>
+        <footer class="typesettings"><small><a href="https://2read.net/">2read.net</a></small></footer>
     </body>
 </html>`;
 }
@@ -65,7 +65,7 @@ async function handleClick() {
     let article = result[0];
     // hash of empty folder
     let hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn';
-    hash = await ipfsPUT(hash, renderPage(article.title, article.content), 'index.html');
+    hash = await ipfsPUT(hash, renderPage(article), 'index.html');
     for (let img in article.images) {
         let response = await fetch(article.images[img]);
         if (!response.ok) {
