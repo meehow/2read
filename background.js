@@ -1,11 +1,13 @@
 const gateways = [
-    'ipfs.io',
-    'hardbin.com',
-    'ipfs.eternum.io',
-    'cloudflare-ipfs.com',
-    'siderus.io',
-    'ipfs.infura.io'
+    { domain: 'ipfs.io', writable: false },
+    { domain: 'cloudflare-ipfs.com', writable: false },
+    { domain: 'ipfs.infura.io', writable: false },
+    { domain: 'ipfs.eternum.io', writable: true },
+    { domain: 'hardbin.com', writable: true },
+    { domain: 'siderus.io', writable: true },
 ];
+
+const writableGateways = gateways.filter(gw => gw.writable).sort(() => .5 - Math.random());
 
 function renderPage(article) {
     return `<!DOCTYPE html>
@@ -34,15 +36,19 @@ function renderPage(article) {
 }
 
 async function ipfsPUT(hash, body, filename) {
-    let response = await fetch(`https://ipfs.eternum.io/ipfs/${hash}/${filename}`, {
-        method: 'PUT',
-        body: body,
-        headers: { 'Content-Type': 'text/html' },
-    });
-    if (!response.ok) {
-        throw `Unexpected status ${response.statusText} - ${response.status}`;
+    for (let gateway of writableGateways) {
+        let response = await fetch(`https://${gateway.domain}/ipfs/${hash}/${filename}`, {
+            method: 'PUT',
+            body: body,
+            headers: { 'Content-Type': 'text/html' },
+        });
+        if (!response || !response.ok) {
+            console.error(`Unexpected response from ${gateway.domain}`, response);
+            continue;
+        }
+        return response.headers.get('ipfs-hash');
     }
-    return response.headers.get('ipfs-hash');
+    throw 'No writable gateway found';
 }
 
 async function pinLocally(hash) {
@@ -54,7 +60,7 @@ async function pinLocally(hash) {
 
 function seed(hash) {
     for (let gateway of gateways) {
-        fetch(`https://${gateway}/ipfs/${hash}/`);
+        fetch(`https://${gateway.domain}/ipfs/${hash}/`);
     }
 }
 
@@ -67,13 +73,13 @@ async function handleClick() {
     hash = await ipfsPUT(hash, renderPage(article), 'index.html');
     for (let img in article.images) {
         let response = await fetch(article.images[img]);
-        if (!response.ok) {
-            console.error(`Unexpected status ${response.status} - ${response.statusText}`);
+        if (!response || !response.ok) {
+            console.error('Unexpected response', response);
             continue;
         }
         hash = await ipfsPUT(hash, await response.blob(), img);
     }
-    let url = `https://${gateways[0]}/ipfs/${hash}/`;
+    let url = `https://${gateways[0].domain}/ipfs/${hash}/`;
     browser.tabs.create({ url: url });
     browser.bookmarks.create({ title: article.title, url: url });
     pinLocally(hash);
