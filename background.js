@@ -2,6 +2,7 @@ const gateways = [
     { domain: 'ipfs.io', writable: false },
     { domain: 'cloudflare-ipfs.com', writable: false },
     { domain: 'ipfs.infura.io', writable: false },
+    { domain: 'gateway.pinata.cloud', writable: false },
     { domain: 'ipfs.eternum.io', writable: true },
     { domain: 'hardbin.com', writable: true },
     { domain: 'siderus.io', writable: true },
@@ -48,7 +49,7 @@ async function ipfsPUT(hash, body, filename) {
         }
         return response.headers.get('ipfs-hash');
     }
-    throw 'No writable gateway found';
+    throw console.error('No writable gateway found');
 }
 
 async function pinLocally(hash) {
