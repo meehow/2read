@@ -9,7 +9,7 @@
     },
     "permissions": [
         "activeTab",
-        "<all_urls>",
+        "*://*/*",
         "bookmarks"
     ],
     "browser_action": {
