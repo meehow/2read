@@ -47,7 +47,12 @@ async function ipfsPUT(hash, body, filename) {
             console.error(`Unexpected response from ${gateway.domain}`, response);
             continue;
         }
-        return response.headers.get('ipfs-hash');
+        let headersHash = response.headers.get('ipfs-hash');
+        if (!headersHash) {
+            console.error(`Empty hash from ${gateway.domain}`, response);
+            continue;
+        }
+        return headersHash;
     }
     throw console.error('No writable gateway found');
 }
@@ -59,16 +64,13 @@ async function pinLocally(hash) {
     req.send();
 }
 
-function seed(hash) {
-    for (let gateway of gateways) {
-        fetch(`https://${gateway.domain}/ipfs/${hash}/`);
-    }
+function handleClick() {
+    chrome.tabs.executeScript({ file: 'Readability.js' }, function () {
+        chrome.tabs.executeScript({ file: 'action.js' });
+    });
 }
 
-async function handleClick() {
-    await browser.tabs.executeScript({ file: 'Readability.js' });
-    let result = await browser.tabs.executeScript({ file: 'action.js' });
-    let article = result[0];
+async function handleMessage(article) {
     // hash of empty folder
     let hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn';
     hash = await ipfsPUT(hash, renderPage(article), 'index.html');
@@ -81,10 +83,11 @@ async function handleClick() {
         hash = await ipfsPUT(hash, await response.blob(), img);
     }
     let url = `https://${gateways[0].domain}/ipfs/${hash}/`;
-    browser.tabs.create({ url: url });
-    browser.bookmarks.create({ title: article.title, url: url });
+    chrome.tabs.create({ url: url });
+    chrome.bookmarks.create({ title: article.title, url: url });
     pinLocally(hash);
-    seed(hash);
+    gateways.forEach(gateway => fetch(`https://${gateway.domain}/ipfs/${hash}/`));
 }
 
-browser.browserAction.onClicked.addListener(handleClick);
+chrome.browserAction.onClicked.addListener(handleClick);
+chrome.runtime.onMessage.addListener(handleMessage);
