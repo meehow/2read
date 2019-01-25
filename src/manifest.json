@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "2read",
-    "version": "1.5",
+    "version": "1.6",
     "homepage_url": "https://2read.net/",
     "description": "Convert article in current tab to readable form and upload it to IPFS.",
     "icons": {
