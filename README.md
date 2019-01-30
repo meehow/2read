@@ -1,6 +1,6 @@
 # [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/2read/)
 
-# Chrome extension - pending review
+# [Chrome extension](https://chrome.google.com/webstore/detail/2read/nooeemkngkckhnlfbmikbkiiabbbnlap)
 
 ### Features
 
