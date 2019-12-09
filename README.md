@@ -10,7 +10,7 @@
 - Automatic "pinning"
 - Automatic bookmarking
 
-## Release notes
+### Release notes
 
 - v1.7 - serious speedup, more gateways added, automatic fastest gateway selection, image pre-seeding
 
