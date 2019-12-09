@@ -15,7 +15,7 @@ const gateways = [
     { domain: 'gateway.ipfs.io', writable: false },
     { domain: 'ipfs.io', writable: false },
     { domain: 'gateway.temporal.cloud', writable: false },
-    { domain: 'ipfs.infura.io', writable: false },
+    // { domain: 'ipfs.infura.io', writable: false },
 ];
 var roGateways;
 var rwGateways;
