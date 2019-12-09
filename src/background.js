@@ -15,7 +15,7 @@ const gateways = [
     { domain: 'gateway.ipfs.io', writable: false },
     { domain: 'ipfs.io', writable: false },
     { domain: 'gateway.temporal.cloud', writable: false },
-    // { domain: 'ipfs.infura.io', writable: false },
+    { domain: 'ipfs.infura.io', writable: false },
 ];
 var roGateways;
 var rwGateways;
@@ -115,7 +115,7 @@ async function handleMessage(article) {
         }
         hash = await ipfsPUT(hash, await response.blob(), img);
     }
-    let url = `https://${roGateways[0].domain}/ipfs/${hash}/`;
+    let url = `https://${rwGateways[0].domain}/ipfs/${hash}/`;
     chrome.tabs.create({ url: url });
     chrome.bookmarks.create({ title: article.title, url: url });
     pinLocally(hash);
