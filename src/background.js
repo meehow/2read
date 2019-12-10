@@ -1,4 +1,4 @@
-const gateways = [
+const gateways = Promise.all([
     { domain: 'ipfs.jes.xxx', writable: true },
     { domain: 'gateway.pinata.cloud', writable: false },
     { domain: 'hardbin.com', writable: true },
@@ -8,7 +8,6 @@ const gateways = [
     { domain: '10.via0.com', writable: false },
     { domain: 'ipfs.eternum.io', writable: true },
     { domain: 'jorropo.ovh', writable: false },
-    { domain: 'ninetailed.ninja', writable: false },
     { domain: 'cloudflare-ipfs.com', writable: false },
     { domain: 'ipfs.greyh.at', writable: false },
     { domain: 'ipfs.best-practice.se', writable: false },
@@ -16,27 +15,26 @@ const gateways = [
     { domain: 'ipfs.io', writable: false },
     { domain: 'gateway.temporal.cloud', writable: false },
     { domain: 'ipfs.infura.io', writable: false },
-];
-var roGateways;
-var rwGateways;
-
-Promise.all(gateways.map(roundtrip)).then(gws => {
-    roGateways = gws.filter(gw => gw.writable === false).sort(gw => -gw.roundtrip);
-    rwGateways = gws.filter(gw => gw.writable === true).sort(gw => -gw.roundtrip);
-    console.log(`2read found ${rwGateways.length} read-write and ${roGateways.length} read-only gateways.`)
-});
-
+].map(roundtrip));
 
 async function roundtrip(gw) {
     const start = performance.now();
     const response = await fetch(`https://${gw.domain}/ipfs/QmRSzXkL6wKf2BmZon2jPv7K6uKDiYbtwsv1Qoz1Vviw3G/`);
     gw.roundtrip = performance.now() - start;
-    if (!response || !response.ok || await response.text() != '2read.net') {
+    if (!response.ok || await response.text() != '2read.net') {
         console.error('Unexpected response', response);
         gw.writable = null;
     }
     return gw;
 }
+
+function gwSort(gw1, gw2) {
+    return gw1.roundtrip - gw2.roundtrip;
+}
+
+const rwGateways = gateways.then(gws => gws.filter(gw => gw.writable === true).sort(gwSort));
+const roGateways = gateways.then(gws => gws.filter(gw => gw.writable === false).sort(gwSort));
+const emptyFolder = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn';
 
 function renderPage(article) {
     return `<!DOCTYPE html>
@@ -64,37 +62,40 @@ function renderPage(article) {
 </html>`;
 }
 
-async function ipfsPUT(hash, body, filename) {
-    for (let gw of rwGateways) {
+async function ipfsPUT(hash, body, filename, contentType) {
+    for (let gw of await rwGateways) {
         let response = await fetch(`https://${gw.domain}/ipfs/${hash}/${filename}`, {
             method: 'PUT',
             body: body,
-            headers: { 'Content-Type': 'text/html' },
+            headers: { 'Content-Type': contentType },
         });
-        if (!response || !response.ok) {
+        if (!response.ok) {
             // image too big
             if (response.status == 413) {
-                return hash;
+                return { gw, hash };
             }
             console.error(`Unexpected response from ${gw.domain}`, response);
             continue;
         }
-        let headersHash = response.headers.get('ipfs-hash');
-        if (!headersHash) {
+        hash = response.headers.get('ipfs-hash');
+        if (!hash) {
             console.error(`Empty hash from ${gw.domain}`, response);
             continue;
         }
-        roGateways.forEach(gw => fetch(`https://${gw.domain}${response.headers.get('location')}`));
-        return headersHash;
+        roGateways.then(gws => gws.forEach(gw => fetch(`https://${gw.domain}${response.headers.get('location')}`)));
+        return { gw, hash };
     }
     throw console.error('No writable gateway found');
 }
 
-async function pinLocally(hash) {
+async function pinLocally(hash, title) {
     // TODO: handle non-standard port configuration or use window.ipfs
-    let req = new XMLHttpRequest();
-    req.open('GET', `http://localhost:5001/api/v0/pin/add?arg=${hash}`);
-    req.send();
+    let pin = new XMLHttpRequest();
+    pin.open('GET', `http://localhost:5001/api/v0/pin/add?arg=${hash}`);
+    pin.send();
+    let cp = new XMLHttpRequest();
+    cp.open('POST', `http://localhost:5001/api/v0/files/cp?arg=/ipfs/${hash}&arg=/${encodeURIComponent(title)}`);
+    cp.send();
 }
 
 function handleClick() {
@@ -104,21 +105,21 @@ function handleClick() {
 }
 
 async function handleMessage(article) {
-    // hash of empty folder
-    let hash = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn';
-    hash = await ipfsPUT(hash, renderPage(article), 'index.html');
+    let { gw, hash } = await ipfsPUT(emptyFolder, renderPage(article), 'index.html', 'text/html');
     for (let img in article.images) {
         let response = await fetch(article.images[img]);
         if (!response || !response.ok) {
             console.error('Unexpected response', response);
             continue;
         }
-        hash = await ipfsPUT(hash, await response.blob(), img);
+        let put = await ipfsPUT(hash, await response.blob(), img, response.headers.get('content-type'));
+        gw = put.gw;
+        hash = put.hash;
     }
-    let url = `https://${rwGateways[0].domain}/ipfs/${hash}/`;
+    let url = `https://${gw.domain}/ipfs/${hash}/`;
     chrome.tabs.create({ url: url });
     chrome.bookmarks.create({ title: article.title, url: url });
-    pinLocally(hash);
+    pinLocally(hash, article.title);
 }
 
 chrome.browserAction.onClicked.addListener(handleClick);
