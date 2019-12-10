@@ -8,10 +8,12 @@
 - Upload to [IPFS](https://ipfs.io/)
 - Seeding the content to multiple gateways
 - Automatic "pinning"
+- Automatic copying to [Mutable File System (MFS)](https://docs.ipfs.io/guides/concepts/mfs/)
 - Automatic bookmarking
 
 ## Release notes
 
+- v1.8 - copy articles to [Mutable File System (MFS)](https://docs.ipfs.io/guides/concepts/mfs/)
 - v1.7 - serious speedup, more gateways added, automatic fastest gateway selection, image pre-seeding
 
 ## Note
