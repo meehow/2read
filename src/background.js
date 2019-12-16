@@ -77,12 +77,13 @@ async function ipfsPUT(hash, body, filename, contentType) {
             console.error(`Unexpected response from ${gw.domain}`, response);
             continue;
         }
-        hash = response.headers.get('ipfs-hash');
-        if (!hash) {
+        let headerHash = response.headers.get('ipfs-hash');
+        if (!headerHash) {
             console.error(`Empty hash from ${gw.domain}`, response);
             continue;
         }
-        roGateways.then(gws => gws.forEach(gw => fetch(`https://${gw.domain}${response.headers.get('location')}`)));
+        hash = headerHash;
+        roGateways.then(gws => gws.forEach(gw => fetch(`https://${gw.domain}/ipfs/${hash}/`)));
         return { gw, hash };
     }
     throw console.error('No writable gateway found');
