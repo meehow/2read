@@ -15,7 +15,7 @@ const gateways = Promise.all([
     { domain: 'gateway.ipfs.io', writable: false },
     { domain: 'ipfs.io', writable: false },
     { domain: 'gateway.temporal.cloud', writable: false },
-    { domain: 'ipfs.infura.io', writable: false },
+    { domain: 'ipfs.infura.io', writable: false, head: false },
 ].map(roundtrip));
 
 async function roundtrip(gw) {
@@ -84,7 +84,9 @@ async function ipfsPUT(hash, body, filename, contentType) {
             continue;
         }
         hash = headerHash;
-        roGateways.then(gws => gws.forEach(gw => fetch(`https://${gw.domain}/ipfs/${hash}/`)));
+        roGateways.then(gws => gws.forEach(gw => fetch(`https://${gw.domain}/ipfs/${hash}/`, {
+            method: gw.head === false ? 'GET' : 'HEAD'
+        })));
         return { gw, hash };
     }
     throw console.error('No writable gateway found');
