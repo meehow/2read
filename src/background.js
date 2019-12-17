@@ -90,13 +90,11 @@ async function ipfsPUT(hash, body, filename, contentType) {
 }
 
 async function pinLocally(hash, title) {
-    // TODO: handle non-standard port configuration or use window.ipfs
-    let pin = new XMLHttpRequest();
-    pin.open('GET', `http://localhost:5001/api/v0/pin/add?arg=${hash}`);
-    pin.send();
-    let cp = new XMLHttpRequest();
-    cp.open('POST', `http://localhost:5001/api/v0/files/cp?arg=/ipfs/${hash}&arg=/${encodeURIComponent(title)}`);
-    cp.send();
+    // console.log('IPFS Companion not detected. Trying default localhost ports');
+    let response = await fetch(`http://localhost:5001/api/v0/pin/add?arg=${hash}`);
+    if (response.ok) {
+        await fetch(`http://localhost:5001/api/v0/files/cp?arg=/ipfs/${hash}&arg=/${encodeURIComponent(title)}`, { method: 'POST' });
+    }
 }
 
 function handleClick() {
