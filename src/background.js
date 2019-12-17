@@ -1,5 +1,5 @@
 const gateways = Promise.all([
-    { domain: 'ipfs.2read.net', writable: true },
+    { domain: 'ipfs.2read.net', writable: true, prefer: true },
     { domain: 'ipfs.eternum.io', writable: true },
     { domain: 'ipfs.jes.xxx', writable: true },
     { domain: 'gateway.pinata.cloud', writable: false },
@@ -20,7 +20,7 @@ const gateways = Promise.all([
 
 async function roundtrip(gw) {
     const start = performance.now();
-    const response = await fetch(`https://${gw.domain}/ipfs/QmRSzXkL6wKf2BmZon2jPv7K6uKDiYbtwsv1Qoz1Vviw3G/`);
+    const response = await fetch(`https://${gw.domain}/ipfs/QmRSzXkL6wKf2BmZon2jPv7K6uKDiYbtwsv1Qoz1Vviw3G?rnd=${Math.random()}`);
     gw.roundtrip = performance.now() - start;
     if (!response.ok || await response.text() != '2read.net') {
         console.error('Unexpected response', response);
@@ -30,7 +30,7 @@ async function roundtrip(gw) {
 }
 
 function gwSort(gw1, gw2) {
-    return gw1.roundtrip - gw2.roundtrip;
+    return gw1.roundtrip - gw1.prefer * 100 - gw2.roundtrip;
 }
 
 const rwGateways = gateways.then(gws => gws.filter(gw => gw.writable === true).sort(gwSort));
@@ -96,7 +96,7 @@ async function pinLocally(hash, title) {
     // console.log('IPFS Companion not detected. Trying default localhost ports');
     let response = await fetch(`http://localhost:5001/api/v0/pin/add?arg=${hash}`);
     if (response.ok) {
-        await fetch(`http://localhost:5001/api/v0/files/cp?arg=/ipfs/${hash}&arg=/${encodeURIComponent(title)}`, { method: 'POST' });
+        await fetch(`http://localhost:5001/api/v0/files/cp?arg=/ipfs/${hash}&arg=/${encodeURIComponent(title)}`);
     }
 }
 
