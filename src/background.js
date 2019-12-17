@@ -1,4 +1,6 @@
 const gateways = Promise.all([
+    { domain: 'ipfs.2read.net', writable: true },
+    { domain: 'ipfs.eternum.io', writable: true },
     { domain: 'ipfs.jes.xxx', writable: true },
     { domain: 'gateway.pinata.cloud', writable: false },
     { domain: 'hardbin.com', writable: true },
@@ -6,7 +8,6 @@ const gateways = Promise.all([
     { domain: 'permaweb.io', writable: false },
     { domain: 'ipfs.busy.org', writable: false },
     { domain: '10.via0.com', writable: false },
-    { domain: 'ipfs.eternum.io', writable: true },
     { domain: 'jorropo.ovh', writable: false },
     { domain: 'cloudflare-ipfs.com', writable: false },
     { domain: 'ipfs.greyh.at', writable: false },
