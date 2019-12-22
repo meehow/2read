@@ -1,8 +1,10 @@
-# [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/2read/)
+# 2read: bookmark articles forever
 
-# [Chrome extension](https://chrome.google.com/webstore/detail/2read/nooeemkngkckhnlfbmikbkiiabbbnlap)
+## [Firefox addon](https://addons.mozilla.org/en-US/firefox/addon/2read/)
 
-## Features
+## [Chrome extension](https://chrome.google.com/webstore/detail/2read/nooeemkngkckhnlfbmikbkiiabbbnlap)
+
+### Features
 
 - Web article cleaning for readability
 - Upload to [IPFS](https://ipfs.io/)
@@ -11,12 +13,12 @@
 - Automatic copying to [Mutable File System (MFS)](https://docs.ipfs.io/guides/concepts/mfs/)
 - Automatic bookmarking
 
-## Release notes
+### Release notes
 
 - v1.8 - copy articles to [Mutable File System (MFS)](https://docs.ipfs.io/guides/concepts/mfs/)
 - v1.7 - serious speedup, more gateways added, automatic fastest gateway selection, image pre-seeding
 
-## Note
+### Note
 
 Content shared with this addon is just cached on IPFS servers. If you want to pin the content permanently, you need to have IPFS node running on your computer. You can easily install your local IPFS node using one of these desktop clients:
 
