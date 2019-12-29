@@ -20,10 +20,15 @@ const gateways = Promise.all([
 
 async function roundtrip(gw) {
     const start = performance.now();
-    const response = await fetch(`https://${gw.domain}/ipfs/QmRSzXkL6wKf2BmZon2jPv7K6uKDiYbtwsv1Qoz1Vviw3G?rnd=${Math.random()}`);
-    gw.roundtrip = performance.now() - start;
-    if (!response.ok || await response.text() != '2read.net') {
-        console.error('Unexpected response', response);
+    try {
+        const response = await fetch(`https://${gw.domain}/ipfs/QmRSzXkL6wKf2BmZon2jPv7K6uKDiYbtwsv1Qoz1Vviw3G?rnd=${Math.random()}`);
+        gw.roundtrip = performance.now() - start;
+        if (!response.ok || await response.text() != '2read.net') {
+            console.error('Unexpected response', response);
+            gw.writable = null;
+        }
+    } catch (e) {
+        console.error(e);
         gw.writable = null;
     }
     return gw;
