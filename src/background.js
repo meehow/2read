@@ -49,6 +49,7 @@ function renderPage(article) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="/ipfs/QmcjLy7wEQbLJ4agdit9nvtq5exc7hQszEYwXX9ZzP7ff9/typesettings-1.7-min.css">
+        <link rel="icon" type="image/png" href="/ipfs/QmSGfXuqtuGX5FLdBEH5hRQJc6ZrZWV6rqExLXjfpsihV2">
         <title>${article.title}</title>
         <style>
             footer { text-align: center; border-top: 1px solid #e1e1e1; }
